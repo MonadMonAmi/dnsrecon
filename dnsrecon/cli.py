@@ -62,6 +62,8 @@ from dnsrecon.lib.whois import *
 from dnsrecon.lib.yandexenum import *
 from dnsrecon.lib.tlds import TLDS
 
+from utils import append_wildcard
+
 # Global Variables for Brute force Threads
 brtdata = []
 
@@ -182,7 +184,7 @@ def generate_testname(name_len, name_suffix):
     return "".join(testname) + "." + name_suffix
 
 
-def check_wildcard(res, domain_trg):
+def check_wildcard(res, domain_trg, append_wildcard_path=None):
     """
     Function for checking if Wildcard resolution is configured for a Domain
     """
@@ -198,6 +200,9 @@ def check_wildcard(res, domain_trg):
         print_debug(f"It is resolving to {ip[2]}")
         wildcard_set.add(ip[2])
     print_debug("All queries will resolve to this list of addresses!!")
+
+    if append_wildcard_path:
+        append_wildcard(domain_trg, testname, wildcard_set, append_wildcard_path=append_wildcard_path)
     return wildcard_set
 
 
@@ -497,6 +502,7 @@ def brute_domain(
     verbose=False,
     ignore_wildcard=False,
     thread_num=None,
+    append_wildcard_path=None
 ):
     """
     Main Function for domain brute forcing
@@ -505,8 +511,11 @@ def brute_domain(
     brtdata = []
 
     # Check if wildcard resolution is enabled
-    wildcard_set = check_wildcard(res, dom)
+    wildcard_set = check_wildcard(res, dom, append_wildcard_path)
     if wildcard_set and not ignore_wildcard:
+        if append_wildcard_path:
+            return None
+
         print_status("Do you wish to continue? [Y/n]")
         i = input().lower().strip()
         if i not in ["y", "yes"]:
@@ -1630,7 +1639,7 @@ def ds_zone_walk(res, domain, lifetime):
     return records
 
 
-def main():
+def main(is_finish_exit=False):
     #
     # Option Variables
     #
@@ -1656,6 +1665,7 @@ def main():
     wildcard_filter = False
     verbose = False
     ignore_wildcardrr = False
+    append_wildcard_path = None
 
     #
     # Global Vars
@@ -1767,6 +1777,12 @@ def main():
             "--iw",
             help="Continue brute forcing a domain even if a wildcard record is discovered.",
             action="store_true",
+        )
+        parser.add_argument(
+            "--aw",
+            type=str,
+            dest="aw",
+            help="Stop brute forcing a domain if a wildcard record is discovered, append an information about it to the specified file",
         )
         parser.add_argument(
             "--disable_check_recursion",
@@ -2004,6 +2020,7 @@ Possible types:
 
     verbose = arguments.verbose
     ignore_wildcardrr = arguments.iw
+    append_wildcard_path = arguments.aw
     CONFIG["disable_check_recursion"] = arguments.disable_check_recursion
     CONFIG["disable_check_bindversion"] = arguments.disable_check_bindversion
 
@@ -2086,6 +2103,7 @@ Possible types:
                     verbose,
                     ignore_wildcardrr,
                     thread_num=thread_num,
+                    append_wildcard_path=append_wildcard_path
                 )
                 if do_output and brt_enum_records:
                     returned_records.extend(brt_enum_records)
@@ -2193,4 +2211,5 @@ Increase the timeout from {request_timeout} seconds to a higher number with --li
         print_status(f"Saving records to JSON file: {json_file}")
         write_json(json_file, returned_records, scan_info)
 
-    sys.exit(0)
+    if is_finish_exit:
+        sys.exit(0)
