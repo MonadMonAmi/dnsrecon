@@ -39,4 +39,4 @@ def batch_main(batch_name, domain_list_path=None):
 
 
 if __name__ == '__main__':
-    batch_main("test_batch")  # domain with wildcard
+    batch_main("default_batch")  # domain with wildcard
