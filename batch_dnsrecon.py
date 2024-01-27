@@ -30,7 +30,7 @@ def batch_main(batch_name, domain_list_path=None):
 
     for domain in open(domain_list_path).readlines():
         domain_name = domain.strip()
-        m = re.match("http(s?)://", domain_name)
+        m = re.match("http(s?)://(.*)", domain_name)
         domain_file_name = m.group(2)
         sys.argv = [
             './custom_dnsrecon.py', '-d', domain_name, '-D', SUBDOMAIN_LIST_5000_WITHOUT_DOTS, '-t', 'brt', '-v', '-j',
