@@ -18,7 +18,7 @@ def create_if_not_exists(directory_name):
 def append_wildcard(domain_trg, testname, wildcard_set, append_wildcard_path=None):
     if wildcard_set:
         with open(append_wildcard_path, 'a') as wildcard_file:
-            wildcard_file.write(str([domain_trg, testname, list(wildcard_set)]))
+            wildcard_file.write(str([domain_trg, testname, list(wildcard_set)]) + "\n")
             # to read:
             # from json import loads
             # st = loads(s.replace("'", '"'))

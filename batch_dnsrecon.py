@@ -10,7 +10,7 @@ from misc.get_dot import SUBDOMAIN_LIST_5000_WITHOUT_DOTS
 from utils import main_executor, create_if_not_exists, OUTPUT_DIR, WILDCARD_FILE_NAME, INPUT_DIR
 
 
-def batch_main(batch_name, domain_list_path=None):
+def batch_main(batch_name="default_batch", domain_list_path=None):
     batch_dir_name = batch_name
     if domain_list_path is None:
         domain_list_path = join(INPUT_DIR, batch_name + ".txt")
@@ -30,16 +30,12 @@ def batch_main(batch_name, domain_list_path=None):
 
     for domain in open(domain_list_path).readlines():
         domain_name = domain.strip()
-        m = re.match("http(s?)://(.*)", domain_name)
-        domain_file_name = m.group(2)
         sys.argv = [
-            './custom_dnsrecon.py', '-d', domain_name, '-D', SUBDOMAIN_LIST_5000_WITHOUT_DOTS, '-t', 'brt', '-v', '-j',
-            join(OUTPUT_DIR, batch_dir_name, domain_file_name + '.json'), '--aw', wildcard_file_path
+            './dnsrecon.py', '-d', domain_name, '-D', SUBDOMAIN_LIST_5000_WITHOUT_DOTS, '-t', 'brt', '-v', '-j',
+            join(OUTPUT_DIR, batch_dir_name, domain_name + '.json'), '--aw', wildcard_file_path
         ]
-
-    # print(sys.argv)
-    main_executor(main)
+        main()
 
 
 if __name__ == '__main__':
-    batch_main("default_batch")  # domain with wildcard
+    main_executor(batch_main)  # domain with wildcard
