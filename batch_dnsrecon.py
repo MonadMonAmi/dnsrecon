@@ -9,6 +9,8 @@ from dnsrecon.cli import main, print_status, print_error
 from misc.get_dot import SUBDOMAIN_LIST_5000_WITHOUT_DOTS
 from utils import main_executor, create_if_not_exists, OUTPUT_DIR, WILDCARD_FILE_NAME, INPUT_DIR
 
+SEP = '|'
+
 
 def batch_main(batch_name="default_batch", domain_list_path=None):
     batch_dir_name = batch_name
@@ -30,9 +32,11 @@ def batch_main(batch_name="default_batch", domain_list_path=None):
 
     for domain in open(domain_list_path).readlines():
         domain_name = domain.strip()
+        assert SEP in domain_name  #  other cases should be processed when generate list of domains
+        domain_file_name = domain_name.replace('/', SEP)
         sys.argv = [
             './dnsrecon.py', '-d', domain_name, '-D', SUBDOMAIN_LIST_5000_WITHOUT_DOTS, '-t', 'brt', '-v', '-j',
-            join(OUTPUT_DIR, batch_dir_name, domain_name + '.json'), '--aw', wildcard_file_path
+            join(OUTPUT_DIR, batch_dir_name, domain_file_name + '.json'), '--aw', wildcard_file_path
         ]
         main()
 
