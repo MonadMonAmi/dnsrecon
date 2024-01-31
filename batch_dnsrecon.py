@@ -32,7 +32,7 @@ def batch_main(batch_name="default_batch", domain_list_path=None):
 
     for domain in open(domain_list_path).readlines():
         domain_name = domain.strip()
-        assert SEP in domain_name  #  other cases should be processed when generate list of domains
+        assert SEP not in domain_name  # other cases should be processed when generate list of domains
         domain_file_name = domain_name.replace('/', SEP)
         sys.argv = [
             './dnsrecon.py', '-d', domain_name, '-D', SUBDOMAIN_LIST_5000_WITHOUT_DOTS, '-t', 'brt', '-v', '-j',
